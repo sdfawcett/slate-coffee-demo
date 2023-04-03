@@ -436,3 +436,43 @@
 .banner__box > * + .banner__buttons {
   margin-top: 2rem;
 }
+
+/* RESPONSIVE STYLES FOR VIDEO BANNER */
+
+.media.video-background>*:not(.zoom):not(.deferred-media__poster-button) {
+  height: auto;
+}
+
+@media screen and (max-width: 749px) {
+  .banner--large.video-background:not(.banner--mobile-bottom):not(.banner--adapt) .banner__content {
+      min-height: 27rem;
+  }
+
+  #desktop-video {
+    display: none;
+  }
+}
+  
+@media screen and (min-width: 750px) {
+  .banner--large.video-background:not(.banner--adapt) {
+      min-height: 39rem;
+  }
+
+  #mobile-video {
+    display: none;
+  }
+}
+  
+@media screen and (min-width: 990px) {
+  .banner--large.video-background:not(.banner--adapt) {
+      min-height: 52rem;
+  }
+}
+
+  
+@media screen and (min-width: 1320px) {
+  .banner--large.video-background:not(.banner--adapt) {
+      min-height: 62rem;
+  }
+}
+
