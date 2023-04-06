@@ -1,105 +1,251 @@
 {%- for block in section.blocks -%}
   {%- case block.type -%}
     {%- when 'announcement' -%}
-      <div class="announcement-bar color-{{ block.settings.color_scheme }} gradient" role="region" aria-label="{{ 'sections.header.announcement' | t }}" {{ block.shopify_attributes }}>
-        {%- if block.settings.text != blank -%}
-          {%- if block.settings.link != blank -%}
-            <a href="{{ block.settings.link }}" class="announcement-bar__link link link--text focus-inset animate-arrow">
+    <div
+      class="announcement-bar color-{{ block.settings.color_scheme }} gradient"
+      role="region"
+      aria-label="{{ 'sections.header.announcement' | t }}"
+      {{ block.shopify_attributes }}>
+      {%- if block.settings.text != blank -%}
+        {%- if block.settings.link != blank -%}
+          <a href="{{ block.settings.link }}" class="announcement-bar__link link link--text focus-inset animate-arrow">
           {%- endif -%}
-              <div class="page-width">
-                <p class="announcement-bar__message {{ block.settings.text_alignment }} h5">
-                  <span>{{ block.settings.text | escape }}</span>
-                  {%- if block.settings.link != blank -%}
-                    {% render 'icon-arrow' %}
-                  {%- endif -%}
-                </p>
-              </div>
+          <div class="page-width">
+            <p class="announcement-bar__message {{ block.settings.text_alignment }} h5">
+              <span>{{ block.settings.text | escape }}</span>
+              {%- if block.settings.link != blank -%}
+                {% render 'icon-arrow' %}
+              {%- endif -%}
+            </p>
+          </div>
           {%- if block.settings.link != blank -%}
-            </a>
-          {%- endif -%}
+          </a>
         {%- endif -%}
-      </div>
+      {%- endif -%}
+    </div>
   {%- endcase -%}
+
+  {%- case block.type -%}
+    {%- when 'countdown' -%}
+    {%- if block.settings.enable_countdown -%}
+
+      <script>
+        window.onload = function() {
+          if (typeof jQuery === 'undefined') {
+            return;
+          }
+
+          mwAnnouncementBar.init();
+        }
+
+        var mwAnnouncementBar = (function() {
+          var ID = 'mw-announcement-bar',
+            TEXT = '{{ block.settings.text }}',
+            BACKGROUND_COLOR = '{{ block.settings.background_color }}',
+            TEXT_COLOR = '{{ block.settings.text_color }}',
+            TOP_MARGIN = {{ block.settings.top_margin }},
+            COUNTDOWN_TIMER_ENABLED = {{ block.settings.enable_countdown }},
+            COUNTDOWN_TIMER_DATE = {{ block.settings.timer_date | json }},
+            $timer,
+            $bar;
+
+          function buildBar() {
+            var $textContent = $('<div class="mw-announcement-bar__text" />');
+            $textContent.html(TEXT);
+
+            $bar = $('<div id="' + ID + '" />').css({
+              'background': BACKGROUND_COLOR,
+              'color': TEXT_COLOR,
+              'margin-top': TOP_MARGIN + 'px'
+            }).append($textContent);
+
+            if (COUNTDOWN_TIMER_ENABLED && new Date(COUNTDOWN_TIMER_DATE)instanceof Date && !isNaN(new Date(COUNTDOWN_TIMER_DATE))) {
+              $timer = $('<div class="mw-announcement-bar__timer"/>');
+              $bar.append($timer);
+
+              var timer = buildTimer($timer);
+
+              if (timer === false) {
+                return;
+              }
+            }
+
+            $('.announcement-bar-section .page-width').append($bar);
+
+          }
+
+          function buildTimer($timer) {
+            var today = new Date().getTime();
+            var endTime = new Date(COUNTDOWN_TIMER_DATE).setHours(0, 0, 0, 0);
+            var diff = endTime - today;
+
+            if (diff > 0) {
+              var timer = setInterval((function tick() {
+                var now = new Date().getTime(),
+                  distance = (endTime - now),
+                  days = Math.floor(distance / (1000 * 60 * 60 * 24)),
+                  hours = ('00' + Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60))).slice(-2),
+                  minutes = ('00' + Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60))).slice(-2),
+                  seconds = ('00' + Math.floor((distance % (1000 * 60)) / 1000)).slice(-2),
+                  clientTimezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
+
+                if (distance < 0) {
+                  clearInterval(timer);
+
+                  return null;
+                }
+
+                $timer.html('<span class="mw-announcement-bar__timer__value">' + '<span class="mw-announcement-bar__timer__digit">' + days + '</span>' + '<span class="mw-announcement-bar__timer__label"> {{ block.settings.timer_days_label }} </span>' + '</span>' + '<span class="mw-announcement-bar__timer__value">' + '<span class="mw-announcement-bar__timer__digit">' + hours + '</span>' + '<span class="mw-announcement-bar__timer__label"> {{ block.settings.timer_hours_label }} </span>' + '</span>' + '<span class="mw-announcement-bar__timer__value">' + '<span class="mw-announcement-bar__timer__digit">' + minutes + '</span>' + '<span class="mw-announcement-bar__timer__label"> {{ block.settings.timer_minutes_label }} </span>' + '</span>' + '<span class="mw-announcement-bar__timer__value">' + '<span class="mw-announcement-bar__timer__digit">' + seconds + '</span>' + '<span class="mw-announcement-bar__timer__label"> {{ block.settings.timer_seconds_label }} </span>' + '</span>');
+
+                return tick;
+              })(), 1000);
+            } else {
+              return false;
+            }
+          }
+
+          function init() {
+            buildBar();
+          }
+
+          return {init: init}
+        })();
+      </script>
+
+    {%- endif -%}
+  {%- endcase -%}
+
 {%- endfor -%}
 
 {% schema %}
-{
-  "name": "t:sections.announcement-bar.name",
-  "max_blocks": 12,
-  "class": "announcement-bar-section",
-  "blocks": [
-    {
-      "type": "announcement",
-      "name": "t:sections.announcement-bar.blocks.announcement.name",
-      "settings": [
+  {
+    "name": "t:sections.announcement-bar.name",
+    "max_blocks": 12,
+    "class": "announcement-bar-section",
+    "blocks": [
+      {
+        "type": "announcement",
+        "name": "t:sections.announcement-bar.blocks.announcement.name",
+        "settings": [
+          {
+            "type": "text",
+            "id": "text",
+            "default": "Welcome to our store",
+            "label": "t:sections.announcement-bar.blocks.announcement.settings.text.label"
+          }, {
+            "type": "select",
+            "id": "text_alignment",
+            "options": [
+              {
+                "value": "left",
+                "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__1.label"
+              }, {
+                "value": "center",
+                "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__2.label"
+              }, {
+                "value": "right",
+                "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__3.label"
+              }
+            ],
+            "default": "center",
+            "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.label"
+          }, {
+            "type": "select",
+            "id": "color_scheme",
+            "options": [
+              {
+                "value": "accent-1",
+                "label": "t:sections.all.colors.accent_1.label"
+              },
+              {
+                "value": "accent-2",
+                "label": "t:sections.all.colors.accent_2.label"
+              },
+              {
+                "value": "background-1",
+                "label": "t:sections.all.colors.background_1.label"
+              },
+              {
+                "value": "background-2",
+                "label": "t:sections.all.colors.background_2.label"
+              }, {
+                "value": "inverse",
+                "label": "t:sections.all.colors.inverse.label"
+              }
+            ],
+            "default": "accent-1",
+            "label": "t:sections.all.colors.label"
+          }, {
+            "type": "url",
+            "id": "link",
+            "label": "t:sections.announcement-bar.blocks.announcement.settings.link.label"
+          }
+        ]
+      }, {
+        "type": "countdown",
+        "name": "countdown",
+        "settings": [
+          {
+            "type": "checkbox",
+            "id": "enable_countdown",
+            "default": false,
+            "label": "Enable Timer Countdown"
+          },
+          {
+            "type": "color",
+            "id": "background_color",
+            "label": "Background color",
+            "default": "#d62020"
+          },
+          {
+            "type": "color",
+            "id": "text_color",
+            "label": "Text color",
+            "default": "#ffffff"
+          },
+          {
+            "type": "number",
+            "id": "top_margin",
+            "default": 0,
+            "label": "Top margin (px)"
+          }, {
+            "type": "header",
+            "content": "Countdown timer"
+          }, {
+            "type": "text",
+            "id": "timer_date",
+            "label": "Expiration date",
+            "info": "Format: YYYY-MM-DD"
+          }, {
+            "type": "text",
+            "id": "timer_days_label",
+            "label": "Days label",
+            "default": "Days"
+          }, {
+            "type": "text",
+            "id": "timer_hours_label",
+            "label": "Hours label",
+            "default": "Hours"
+          }, {
+            "type": "text",
+            "id": "timer_minutes_label",
+            "label": "Minutes label",
+            "default": "Minutes"
+          }, {
+            "type": "text",
+            "id": "timer_seconds_label",
+            "label": "Seconds label",
+            "default": "Seconds"
+          }
+        ]
+      }
+    ],
+    "default": {
+      "blocks": [
         {
-          "type": "text",
-          "id": "text",
-          "default": "Welcome to our store",
-          "label": "t:sections.announcement-bar.blocks.announcement.settings.text.label"
-        },
-        {
-          "type": "select",
-          "id": "text_alignment",
-          "options": [
-            {
-              "value": "left",
-              "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__1.label"
-            },
-            {
-              "value": "center",
-              "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__2.label"
-            },
-            {
-              "value": "right",
-              "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.options__3.label"
-            }
-          ],
-          "default": "center",
-          "label": "t:sections.announcement-bar.blocks.announcement.settings.text_alignment.label"
-        },
-        {
-          "type": "select",
-          "id": "color_scheme",
-          "options": [
-            {
-              "value": "accent-1",
-              "label": "t:sections.all.colors.accent_1.label"
-            },
-            {
-              "value": "accent-2",
-              "label": "t:sections.all.colors.accent_2.label"
-            },
-            {
-              "value": "background-1",
-              "label": "t:sections.all.colors.background_1.label"
-            },
-            {
-              "value": "background-2",
-              "label": "t:sections.all.colors.background_2.label"
-            },
-            {
-              "value": "inverse",
-              "label": "t:sections.all.colors.inverse.label"
-            }
-          ],
-          "default": "accent-1",
-          "label": "t:sections.all.colors.label"
-        },
-        {
-          "type": "url",
-          "id": "link",
-          "label": "t:sections.announcement-bar.blocks.announcement.settings.link.label"
+          "type": "announcement"
         }
       ]
     }
-  ],
-  "default": {
-    "blocks": [
-      {
-        "type": "announcement"
-      }
-    ]
   }
-}
 {% endschema %}
