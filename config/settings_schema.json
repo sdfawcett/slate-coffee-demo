@@ -1515,6 +1515,17 @@
     "name": "t:settings_schema.cart.name",
     "settings": [
       {
+        "type": "text",
+        "id": "cart_heading",
+        "label": "Upsell Heading",
+        "info": "Add a heading to your upsell"
+      },
+      {
+        "type": "product",
+        "id": "product_select",
+        "label": "Choose a product for your upsell"
+      },
+      {
         "type": "select",
         "id": "cart_type",
         "options": [

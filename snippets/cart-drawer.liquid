@@ -338,6 +338,57 @@
                         </td>
                       </tr>
                     {%- endfor -%}
+
+                    {% if settings.cart_heading != null %}
+                      <tr id="upsell-headline" role="row">
+                        <td role="cell">
+                          <h3>{{ settings.cart_heading }}</h3>
+                        </td>
+                      </tr>
+                    {%- endif -%}
+                    
+                      <tr id="upsell-item" class="cart-item" role="row">
+                        <td class="cart-item__media" role="cell" headers="CartDrawer-ColumnProductImage">
+
+                            <a href="{{ settings.product_select.url }}" class="cart-item__link" tabindex="-1" aria-hidden="true">
+                            </a>
+                            <img class="cart-item__image"
+                              src="{{ settings.product_select.featured_image | img_url: '100x100' }}" alt="{{ settings.product_select.description }}"
+                              loading="lazy" width="150" height="150">
+
+                        </td>
+
+                        <td class="cart-item__details" role="cell" headers="CartDrawer-ColumnProduct"><a
+                              href="{{ settings.product_select.url }}" class="cart-item__name h4 break">{{ settings.product_select.title }}</a>
+                            <div class="product-option">
+                              {{ settings.product_select.price | money }}
+                            </div>
+                            <p class="product-option"></p>
+                            <ul class="discounts list-unstyled" role="list" aria-label="Discount"></ul>
+                        </td>
+
+                        <td class="cart-item__totals right" role="cell" headers="CartDrawer-ColumnTotal">
+                            <div class="loading-overlay hidden">
+                              <div class="loading-overlay__spinner">
+                                  <svg aria-hidden="true" focusable="false" class="spinner" viewBox="0 0 66 66"
+                                    xmlns="http://www.w3.org/2000/svg">
+                                    <circle class="path" fill="none" stroke-width="6" cx="33" cy="33" r="30"></circle>
+                                  </svg>
+                              </div>
+                            </div>
+
+                            <div class="cart-item__price-wrapper">
+                              <span class="price price--end">
+                              {{ settings.product_select.price | money }}
+                              </span>
+                            </div>
+                        </td>
+
+                        <td class="cart-item__quantity" role="cell" headers="CartDrawer-ColumnQuantity">
+                          <button type="submit" id="upsell-button" form="upsell-form">Quick-Add</button>
+                        </td>
+                      </tr>
+                    
                   </tbody>
                 </table>
               </div>

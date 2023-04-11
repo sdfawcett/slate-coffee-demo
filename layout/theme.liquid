@@ -424,6 +424,14 @@
   </head>
 
   <body class="gradient">
+    <product-form class="upsell-form">
+    <form method="post" action="/cart/add" id="upsell-form">
+      <select name="id" id="upsell-select">
+        <option value="45095407878455">upsell product</option>
+      </select>
+    </form>
+    </product-form>
+
     <a class="skip-to-content-link button visually-hidden" href="#MainContent">
       {{ "accessibility.skip_to_text" | t }}
     </a>
